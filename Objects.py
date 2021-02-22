@@ -189,6 +189,7 @@ class SmallStar(pg.sprite.Sprite):
         self.y = -30
 
         self.surf = pg.image.load(SMALL_STAR_IMG).convert()
+        self.surf.set_alpha(128)
         self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
 
         self.rect = self.surf.get_rect(
@@ -211,6 +212,7 @@ class BigStar(pg.sprite.Sprite):
         self.y = -30
 
         self.surf = pg.image.load(BIG_STAR_IMG).convert()
+        self.surf.set_alpha(128)
         self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
 
         self.rect = self.surf.get_rect(
@@ -233,6 +235,7 @@ class SpeedLine(pg.sprite.Sprite):
         self.y = -30
 
         self.surf = pg.image.load(SPEED_LINE_IMG).convert()
+        self.surf.set_alpha(10)
         self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
 
         self.rect = self.surf.get_rect(

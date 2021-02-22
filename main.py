@@ -71,6 +71,9 @@ pg.time.set_timer(ADD_ENEMY_UFO_EVENT, 60000)
 ADD_STAR_EVENT = pg.USEREVENT + 6
 pg.time.set_timer(ADD_STAR_EVENT, 750)
 
+ADD_SPEEDLINE_EVENT = pg.USEREVENT + 7
+pg.time.set_timer(ADD_SPEEDLINE_EVENT, 100)
+
 game_life = pg.image.load(LIFE_IMG).convert()
 game_life.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
 
@@ -122,13 +125,14 @@ while running:
                     all_sprites.add(enemy_laser)
                     shooting_sound.play()
         elif event.type == ADD_STAR_EVENT:
-            x = random.randint(0, 2)
+            x = random.randint(0, 1)
             if x == 0:
                 img = SmallStar(SCREEN_WIDTH, SCREEN_HEIGHT)
-            elif x == 1:
-                img = BigStar(SCREEN_WIDTH, SCREEN_HEIGHT)
             else:
-                img = SpeedLine(SCREEN_WIDTH, SCREEN_HEIGHT)
+                img = BigStar(SCREEN_WIDTH, SCREEN_HEIGHT)
+            all_sprites.add(img)
+        elif event.type == ADD_SPEEDLINE_EVENT:
+            img = SpeedLine(SCREEN_WIDTH, SCREEN_HEIGHT)
             all_sprites.add(img)
 
     pressed_keys = pg.key.get_pressed()
