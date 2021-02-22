@@ -22,7 +22,10 @@ from Objects import LargeMeteor
 from Objects import EnemyShip
 from Objects import EnemyUFO
 from Objects import Score
-
+from Objects import Explosion
+from Objects import SmallStar
+from Objects import BigStar
+from Objects import SpeedLine
 
 # Initialize PyGame
 pg.init()
@@ -64,6 +67,9 @@ pg.time.set_timer(ADD_ENEMY_SHIP_EVENT, 3000)
 
 ADD_ENEMY_UFO_EVENT = pg.USEREVENT + 5
 pg.time.set_timer(ADD_ENEMY_UFO_EVENT, 60000)
+
+ADD_STAR_EVENT = pg.USEREVENT + 6
+pg.time.set_timer(ADD_STAR_EVENT, 750)
 
 game_life = pg.image.load(LIFE_IMG).convert()
 game_life.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
@@ -115,6 +121,15 @@ while running:
                     all_enemy_lasers.add(enemy_laser)
                     all_sprites.add(enemy_laser)
                     shooting_sound.play()
+        elif event.type == ADD_STAR_EVENT:
+            x = random.randint(0, 2)
+            if x == 0:
+                img = SmallStar(SCREEN_WIDTH, SCREEN_HEIGHT)
+            elif x == 1:
+                img = BigStar(SCREEN_WIDTH, SCREEN_HEIGHT)
+            else:
+                img = SpeedLine(SCREEN_WIDTH, SCREEN_HEIGHT)
+            all_sprites.add(img)
 
     pressed_keys = pg.key.get_pressed()
 
@@ -130,10 +145,6 @@ while running:
             )
             screen.blit(background_img, rect)
 
-    screen.blit(background_img, background_img.get_rect())
-
-    screen.blit(player.surf, player.rect)
-
     if pressed_keys[K_SPACE]:
         if not player.player_fired:
             shooting_sound.play()
@@ -142,10 +153,6 @@ while running:
             all_sprites.add(laser)
             player.player_fire()
 
-    for sprite in all_sprites:
-        sprite.update()
-        screen.blit(sprite.surf, sprite.rect)
-
     score.update()
     player.update(pressed_keys)
 
@@ -153,32 +160,41 @@ while running:
         meteor_hit = pg.sprite.spritecollideany(player_laser, all_meteors)
         ship_hit = pg.sprite.spritecollideany(player_laser, all_enemy_ships)
         if meteor_hit is not None:
+            explosion = Explosion(meteor_hit.rect.x, meteor_hit.rect.y)
+            all_sprites.add(explosion)
             meteor_hit.kill()
             player_laser.kill()
-            explosion_sound.play()
+            explosion_sound.play(maxtime=750)
             if type(meteor_hit) == SmallMeteor:
                 score.add_to_score(100)
             else:
                 score.add_to_score(50)
         if ship_hit is not None:
+            explosion = Explosion(ship_hit.rect.x, ship_hit.rect.y)
+            all_sprites.add(explosion)
             ship_hit.kill()
             player_laser.kill()
-            explosion_sound.play()
+            explosion_sound.play(maxtime=750)
             if type(ship_hit) == EnemyUFO:
                 score.add_to_score(1000)
                 player_life += 1
             else:
                 score.add_to_score(150)
 
-    if pg.sprite.spritecollideany(player, all_meteors) or pg.sprite.spritecollideany(player,
-                                                                                     all_enemy_ships) or pg.sprite.spritecollideany(
-            player, all_enemy_lasers):
+    if not (not pg.sprite.spritecollideany(player, all_meteors) and not pg.sprite.spritecollideany(player, all_enemy_ships)) or pg.sprite.spritecollideany(player, all_enemy_lasers):
+        explosion = Explosion(player.rect.x, player.rect.y)
+        all_sprites.add(explosion)
         player.kill()
         explosion_sound.play()
-        time.sleep(1)
-        for sprite in all_sprites:
+        for sprite in all_enemy_lasers:
+            sprite.kill()
+        for sprite in all_meteors:
+            sprite.kill()
+        for sprite in all_enemy_ships:
             sprite.kill()
         player_life -= 1
+
+    screen.blit(background_img, background_img.get_rect())
 
     for i in range(player_life):
         screen.blit(game_life, game_life.get_rect(
@@ -187,6 +203,12 @@ while running:
                 game_life.get_height()
             )
         ))
+
+    for sprite in all_sprites:
+        sprite.update()
+        screen.blit(sprite.surf, sprite.rect)
+
+    screen.blit(player.surf, player.rect)
 
     screen.blit(score.score_text, score.rect)
 

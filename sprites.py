@@ -22,8 +22,30 @@ ENEMY_LASER_IMG_PATH = os.path.join(EFFECTS_DIR, "laserRed.png")
 PLAYER_LASER_HIT_IMG = os.path.join(EFFECTS_DIR, "laserGreenShot.png")
 ENEMY_LASER_HIT_IMG = os.path.join(EFFECTS_DIR, "laserRedShot.png")
 
+SMALL_STAR_IMG = os.path.join(EFFECTS_DIR, "starSmall.png")
+BIG_STAR_IMG = os.path.join(EFFECTS_DIR, "starBig.png")
+
+EXPLOSION_IMG_1 = os.path.join(EFFECTS_DIR, "Explosion_1.png")
+EXPLOSION_IMG_2 = os.path.join(EFFECTS_DIR, "Explosion_2.png")
+EXPLOSION_IMG_3 = os.path.join(EFFECTS_DIR, "Explosion_3.png")
+EXPLOSION_IMG_4 = os.path.join(EFFECTS_DIR, "Explosion_4.png")
+EXPLOSION_IMG_5 = os.path.join(EFFECTS_DIR, "Explosion_5.png")
+EXPLOSION_IMG_6 = os.path.join(EFFECTS_DIR, "Explosion_6.png")
+EXPLOSION_IMG_7 = os.path.join(EFFECTS_DIR, "Explosion_7.png")
+
+EXPLOSION_SEQ = [
+    EXPLOSION_IMG_1,
+    EXPLOSION_IMG_2,
+    EXPLOSION_IMG_3,
+    EXPLOSION_IMG_4,
+    EXPLOSION_IMG_5,
+    EXPLOSION_IMG_6,
+    EXPLOSION_IMG_7
+]
+
 SMALL_METEOR_IMG = os.path.join(OBJECTS_DIR, "meteorSmall.png")
 LARGE_METEOR_IMG = os.path.join(OBJECTS_DIR, "meteorBig.png")
+SPEED_LINE_IMG = os.path.join(EFFECTS_DIR, "speedLine.png")
 
 ENEMY_SHIP_IMG = os.path.join(OBJECTS_DIR, "enemyShip.png")
 

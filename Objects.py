@@ -18,6 +18,10 @@ from sprites import SMALL_METEOR_IMG
 from sprites import LARGE_METEOR_IMG
 from sprites import ENEMY_SHIP_IMG
 from sprites import UFO_IMG
+from sprites import EXPLOSION_SEQ
+from sprites import SMALL_STAR_IMG
+from sprites import BIG_STAR_IMG
+from sprites import SPEED_LINE_IMG
 from fonts import get_text
 
 
@@ -47,7 +51,7 @@ class LargeMeteor(pg.sprite.Sprite):
 
     def __init__(self, x, y):
         super(LargeMeteor, self).__init__()
-        self.speed = 5
+        self.speed = 2
         self.x = x
         self.y = y
         self.surf = pg.image.load(LARGE_METEOR_IMG).convert()
@@ -86,7 +90,7 @@ class EnemyUFO(pg.sprite.Sprite):
 
     def update(self):
         self.x += self.speed
-        self.y += random.choice([x for x in range(-2*self.speed, 2*self.speed)])
+        self.y += random.choice([x for x in range(-2 * self.speed, 2 * self.speed)])
         self.rect = self.surf.get_rect(
             center=(self.x, self.y)
         )
@@ -176,6 +180,72 @@ class PlayerLaser(pg.sprite.Sprite):
             self.kill()
 
 
+class SmallStar(pg.sprite.Sprite):
+
+    def __init__(self, screen_width, screen_height):
+        super(SmallStar, self).__init__()
+
+        self.x = random.randint(0, screen_width)
+        self.y = -30
+
+        self.surf = pg.image.load(SMALL_STAR_IMG).convert()
+        self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
+
+        self.rect = self.surf.get_rect(
+            center=(self.x, self.y)
+        )
+
+    def update(self):
+        self.y += 10
+        self.rect.center = (self.x, self.y)
+        if self.y > 1000:
+            self.kill()
+
+
+class BigStar(pg.sprite.Sprite):
+
+    def __init__(self, screen_width, screen_height):
+        super(BigStar, self).__init__()
+
+        self.x = random.randint(0, screen_width)
+        self.y = -30
+
+        self.surf = pg.image.load(BIG_STAR_IMG).convert()
+        self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
+
+        self.rect = self.surf.get_rect(
+            center=(self.x, self.y)
+        )
+
+    def update(self):
+        self.y += 5
+        self.rect.center = (self.x, self.y)
+        if self.y > 1000:
+            self.kill()
+
+
+class SpeedLine(pg.sprite.Sprite):
+
+    def __init__(self, screen_width, screen_height):
+        super(SpeedLine, self).__init__()
+
+        self.x = random.randint(0, screen_width)
+        self.y = -30
+
+        self.surf = pg.image.load(SPEED_LINE_IMG).convert()
+        self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
+
+        self.rect = self.surf.get_rect(
+            center=(self.x, self.y)
+        )
+
+    def update(self):
+        self.y += 30
+        self.rect.center = (self.x, self.y)
+        if self.y > 1000:
+            self.kill()
+
+
 class Player(pg.sprite.Sprite):
 
     def __init__(self, screen_width, screen_height):
@@ -193,8 +263,8 @@ class Player(pg.sprite.Sprite):
         self.surf = pg.image.load(PLAYER_IMG_CENTER).convert()
         self.surf.set_colorkey(pg.color.THECOLORS['black'], RLEACCEL)
 
-        self.x = (screen_width-self.surf.get_width())/2
-        self.y = (screen_height-5-self.surf.get_height()/2)
+        self.x = (screen_width - self.surf.get_width()) / 2
+        self.y = (screen_height - 5 - self.surf.get_height() / 2)
 
         self.rect = self.surf.get_rect(
             center=(self.x, self.y)
@@ -227,14 +297,14 @@ class Player(pg.sprite.Sprite):
         )
 
         if self.rect.right > self.horizontal_limit:
-            self.x = self.horizontal_limit - (self.rect.width/2)
+            self.x = self.horizontal_limit - (self.rect.width / 2)
         if self.rect.left < 0:
-            self.x = self.rect.width/2
+            self.x = self.rect.width / 2
 
-        if self.rect.top < self.vertical_limit*0.66:
-            self.y = self.vertical_limit*0.66 + self.rect.height/2
+        if self.rect.top < self.vertical_limit * 0.66:
+            self.y = self.vertical_limit * 0.66 + self.rect.height / 2
         if self.rect.bottom > self.vertical_limit:
-            self.y = self.vertical_limit - (self.rect.height/2)
+            self.y = self.vertical_limit - (self.rect.height / 2)
 
         if self.player_fired:
             self.player_fired_delay -= 1
@@ -247,7 +317,7 @@ class Score(pg.sprite.Sprite):
     def __init__(self, screen_width):
         super(Score, self).__init__()
 
-        self.x = screen_width/2
+        self.x = screen_width / 2
         self.y = 20
 
         self.score = 0
@@ -266,3 +336,49 @@ class Score(pg.sprite.Sprite):
         self.rect = self.score_text.get_rect(
             center=(self.x, self.y)
         )
+
+
+class State:
+
+    def __init__(self, animation_seq):
+        self.animation_seq = animation_seq
+        self.animation_seq_index = 0
+        self.is_completed = False
+
+    def get_current_image(self):
+        if not self.is_completed:
+            return self.animation_seq[self.animation_seq_index]
+        return None
+
+    def update(self):
+        self.animation_seq_index += 1
+        if self.animation_seq_index >= len(self.animation_seq):
+            self.is_completed = True
+
+
+class Explosion(pg.sprite.Sprite):
+
+    def __init__(self, x, y):
+        super(Explosion, self).__init__()
+        self.x = x
+        self.y = y
+
+        self.state = State(EXPLOSION_SEQ)
+
+        self.surf = pg.image.load(self.state.get_current_image()).convert()
+        self.surf.set_colorkey(pg.color.THECOLORS['white'], RLEACCEL)
+        self.rect = self.surf.get_rect(
+            center=(self.x, self.y)
+        )
+
+    def update(self):
+        self.state.update()
+        current_image = self.state.get_current_image()
+        if current_image is None:
+            self.kill()
+        else:
+            self.surf = pg.image.load(current_image).convert()
+            self.surf.set_colorkey(pg.color.THECOLORS['white'], RLEACCEL)
+            self.rect = self.surf.get_rect(
+                center=(self.x, self.y)
+            )
